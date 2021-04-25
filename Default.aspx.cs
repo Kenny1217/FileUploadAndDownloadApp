@@ -60,7 +60,16 @@ namespace FileUploadAndDownloadApp
 
         protected void lbtnDownload_Click(object sender, EventArgs e)
         {
-
+            String FileName = Session["File_Name"].ToString();
+            String FileType = Session["File_Ext"].ToString();
+            Response.Clear();
+            Response.Buffer = true;
+            Response.ContentType = FileType;
+            Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+            Response.Charset = "";
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.BinaryWrite((byte[])Session["File_data"]);
+            Response.End();
         }
 
         //Checks if file type is valid
