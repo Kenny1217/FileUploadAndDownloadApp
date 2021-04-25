@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -20,7 +21,41 @@ namespace FileUploadAndDownloadApp
 
         protected void btnUpload_Click(object sender, EventArgs e)
         {
+            //Check if file was entered
+            if (fUpload.HasFile)
+            {
+                HttpPostedFile postedFile = fUpload.PostedFile;
+                string fileExtension = Path.GetExtension(fUpload.FileName); // Get the file extension
+                //Check file extension type
+                if (!IsVaildFileType(fileExtension.ToLower()))
+                {
+                    Response.Write("Please upload supported file types only.");
+                }
+                else
+                {
+                    int fileSize = fUpload.PostedFile.ContentLength; // Get the file size
 
+                    //Check file size
+                    if (IsValidFileSize(fileSize))
+                    {
+                        Response.Write("File size too big");
+                    }
+                    else
+                    {
+                        Stream stream = postedFile.InputStream;
+                        BinaryReader binaryReader = new BinaryReader(stream);
+                        byte[] bytes = binaryReader.ReadBytes((int)stream.Length);
+                        Session["File_Name"] = postedFile.FileName; //Store file name
+                        Session["File_Data"] = bytes; //Store byte data of file
+                        Session["File_Ext"] = fileExtension; //Store file extension
+                        Response.Redirect(Request.RawUrl);
+                    }
+                }
+            }
+            else
+            {
+                Response.Write("No file entered");
+            }
         }
 
         protected void lbtnDownload_Click(object sender, EventArgs e)
